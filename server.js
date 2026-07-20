@@ -29,27 +29,10 @@ const JWT_SECRET = 'super_secret_panel_key_2026';
 const DATA_DIR = path.join(__dirname, 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const BOTS_FILE = path.join(DATA_DIR, 'bots.json');
-const TRAIN_DATA_PATH = path.join(DATA_DIR, 'train.txt');
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, JSON.stringify([]));
 if (!fs.existsSync(BOTS_FILE)) fs.writeFileSync(BOTS_FILE, JSON.stringify([]));
-
-// Fallback Train Data rules if train.txt does not exist
-const DEFAULT_SURVIVAL_DATA = {
-    mob_danger_profiles: {
-        warden: { danger_level: 10, action: "FLEE_SNEAK", min_distance: 40 },
-        creeper: { danger_level: 8, action: "HIT_AND_RUN", min_distance: 6 },
-        enderman: { danger_level: 7, action: "SHIELD_CRIT", min_distance: 15 },
-        zombie: { danger_level: 3, action: "SPAM_CRIT", min_distance: 10 },
-        skeleton: { danger_level: 4, action: "STRAFE_DODGE", min_distance: 15 }
-    },
-    harvest_logic: {
-        wood: { blocks: ["oak_log", "birch_log", "spruce_log", "dark_oak_log"], preferred_tool: "axe", min_tier: "wooden" },
-        iron_ore: { blocks: ["iron_ore", "deepslate_iron_ore"], preferred_tool: "pickaxe", min_tier: "stone" },
-        diamond_ore: { blocks: ["diamond_ore", "deepslate_diamond_ore"], preferred_tool: "pickaxe", min_tier: "iron" }
-    }
-};
 
 const ORE_BASE_VALUE = {
     diamond_ore: 100, deepslate_diamond_ore: 100,
@@ -194,7 +177,7 @@ function findMostLogicalOre(instanceData, oreNames) {
     return bestBlock;
 }
 
-// --- ENHANCED PVP ENGAGEMENT MOTORU (Sin/Cos Orbital Strafing & Anti-Teleport Predictions) ---
+// --- ENHANCED PVP ENGAGEMENT MOTORU ---
 async function engageCloseCombat(instanceData, target) {
     const { bot } = instanceData;
     if (!bot || !bot.entity || !target || !target.position) return false;
@@ -296,7 +279,6 @@ async function engageCloseCombat(instanceData, target) {
         }
     }
 
-    // In-combat health management
     if (bot.health < 12) {
         const gapple = bot.inventory.items().find(i => i.name === 'golden_apple');
         if (gapple) {
@@ -305,7 +287,6 @@ async function engageCloseCombat(instanceData, target) {
         }
     }
 
-    // Smart Shield Management
     const shield = bot.inventory.items().find(i => i.name === 'shield');
     if (shield) {
         if (dist < 4 && target.velocity && target.velocity.y < -0.1) {
@@ -396,7 +377,6 @@ async function executeBehaviorTree(instanceData) {
 
     if (await behaviorFleeWarden(instanceData)) return true; 
 
-    // Rage logic
     const bossTarget = bot.nearestEntity(e => e && e.name === 'enderman' && e.position.distanceTo(bot.entity.position) < 30);
     if (bossTarget && (!instanceData.isEnraged || instanceData.enrageTarget !== bossTarget)) {
         instanceData.isEnraged = true;
@@ -419,13 +399,11 @@ async function executeBehaviorTree(instanceData) {
         }
     }
 
-    // Normal Combat Logic
     if (bot.pvp && bot.pvp.target) {
         await engageCloseCombat(instanceData, bot.pvp.target);
         return true;
     }
 
-    // Emergency Procedures
     const pos = bot.entity.position;
     let lavaNear = false;
     let drowning = !!bot.entity.isInWater && bot.oxygenLevel <= 4;
@@ -446,7 +424,6 @@ async function executeBehaviorTree(instanceData) {
         return true;
     }
 
-    // Companion Logic
     if (instanceData.companionTarget) {
         const targetEntity = bot.players[instanceData.companionTarget]?.entity;
         if (targetEntity) {
@@ -460,7 +437,8 @@ async function executeBehaviorTree(instanceData) {
     }
 
     if (!instanceData.pvpLocked) {
-        // Passive Hunting
+        await collectNearestDroppedItem(instanceData);
+
         const sheep = bot.nearestEntity(e => e && e.name === 'sheep' && e.position.distanceTo(bot.entity.position) < 25);
         if (sheep && !state.bed && state.wool < 3) {
             await autoEquipTool(instanceData, "sword");
@@ -471,7 +449,6 @@ async function executeBehaviorTree(instanceData) {
             return true;
         }
 
-        // Village/Harvest Logic
         const hayBaleBlock = bot.findBlock({ matching: b => b.name === 'hay_block', maxDistance: 30 });
         if (hayBaleBlock) {
             try {
@@ -485,7 +462,6 @@ async function executeBehaviorTree(instanceData) {
             return true;
         }
 
-        // Sleeping Logic
         if (bot.time && (bot.time.timeOfDay >= 13000 && bot.time.timeOfDay <= 23000)) {
             const bedBlock = bot.findBlock({ matching: b => b.name.includes('bed'), maxDistance: 15 });
             if (bedBlock) {
@@ -497,7 +473,6 @@ async function executeBehaviorTree(instanceData) {
             }
         }
 
-        // Active Ore Hunting
         const hasIronPick = bot.inventory.items().some(i => i.name.includes('iron_pickaxe') || i.name.includes('diamond') || i.name.includes('netherite'));
         if (hasIronPick) {
             const diamond = findMostLogicalOre(instanceData, ['diamond_ore', 'deepslate_diamond_ore']);
@@ -511,7 +486,6 @@ async function executeBehaviorTree(instanceData) {
             }
         }
 
-        // Standard Resource Progression Loop
         if (state.wood < 12 && state.cobble < 10) {
             const logBlock = bot.findBlock({ matching: b => b.name.includes('log'), maxDistance: 32 });
             if (logBlock) {
@@ -525,7 +499,6 @@ async function executeBehaviorTree(instanceData) {
         }
     }
 
-    // Default Exploration Behavior
     if (!bot.pathfinder.goal) {
         const rx = pos.x + (Math.random() - 0.5) * 30;
         const rz = pos.z + (Math.random() - 0.5) * 30;
@@ -535,7 +508,7 @@ async function executeBehaviorTree(instanceData) {
 
 function checkAndAttackHostileMobs(instanceData) {
     const { bot } = instanceData;
-    if (!bot || !bot.entity || bot.pvp.target) return;
+    if (!bot || !bot.entity || (bot.pvp && bot.pvp.target)) return;
 
     const hostileMob = bot.nearestEntity(e => 
         e.type === 'mob' && 
@@ -544,7 +517,7 @@ function checkAndAttackHostileMobs(instanceData) {
         e.isValid
     );
 
-    if (hostileMob) {
+    if (hostileMob && bot.pvp) {
         bot.chat(`⚠️ 50m alanda tehlike tespit edildi: ${hostileMob.name.toUpperCase()}! Saldırıya geçiliyor...`);
         bot.pvp.attack(hostileMob);
     }
@@ -652,8 +625,8 @@ TALİMATLAR:
             case 'stop':
                 instanceData.speedrunActive = false;
                 instanceData.companionTarget = null;
-                bot.pathfinder.setGoal(null);
-                bot.pvp.stop();
+                if (bot.pathfinder) bot.pathfinder.setGoal(null);
+                if (bot.pvp) bot.pvp.stop();
                 bot.clearControlStates();
                 break;
             case 'follow':
@@ -668,6 +641,23 @@ TALİMATLAR:
     } catch (err) {
         console.error("AI Hatası:", err.message);
     }
+}
+
+// --- OYUNCU LİSTESİ YARDIMCISI ---
+function sendPlayerList(botId, botInstance) {
+    if (!botInstance || !botInstance.players) return;
+    const players = Object.keys(botInstance.players).map(username => ({ username }));
+    io.to(botId).emit('playerList', players);
+}
+
+// --- ENVANTER SENDİKASYONU YARDIMCISI ---
+function sendInventory(botId, botInstance) {
+    if (!botInstance || !botInstance.inventory) return;
+    const items = botInstance.inventory.items().map(item => ({
+        name: item.name,
+        count: item.count
+    }));
+    io.to(botId).emit('inventory', items);
 }
 
 // --- AUTH API ---
@@ -830,6 +820,10 @@ function startBotInstance(botConfig) {
         }, 200);
 
         instanceData.intervals.push(scanInterval, treeInterval);
+        
+        // İlk bağlantıda listeleri gönder
+        sendPlayerList(botConfig.id, bot);
+        sendInventory(botConfig.id, bot);
     });
 
     bot.on('move', () => {
@@ -841,10 +835,15 @@ function startBotInstance(botConfig) {
             z: pos.z.toFixed(1),
             yaw: bot.entity.yaw.toFixed(2),
             pitch: bot.entity.pitch.toFixed(2),
-            health: bot.health,
-            food: bot.food
+            health: bot.health ? Math.round(bot.health) : 20,
+            food: bot.food ? Math.round(bot.food) : 20
         });
     });
+
+    bot.on('playerJoined', () => sendPlayerList(botConfig.id, bot));
+    bot.on('playerLeft', () => sendPlayerList(botConfig.id, bot));
+
+    bot.inventory.on('updateSlot', () => sendInventory(botConfig.id, bot));
 
     bot.on('chat', (username, message) => {
         io.to(botConfig.id).emit('chat', { username, message, time: new Date().toLocaleTimeString() });
@@ -868,7 +867,7 @@ function stopBotInstance(botId) {
     if (activeBots.has(botId)) {
         const instance = activeBots.get(botId);
         if (instance.intervals) instance.intervals.forEach(clearInterval);
-        instance.bot.end(); 
+        if (instance.bot) instance.bot.end(); 
         activeBots.delete(botId);
     }
 }
@@ -886,7 +885,15 @@ io.on('connection', (socket) => {
 
             currentBotId = botId;
             socket.join(botId);
-            socket.emit('status', { state: activeBots.has(botId) ? 'online' : 'offline' });
+            
+            const isOnline = activeBots.has(botId);
+            socket.emit('status', { state: isOnline ? 'online' : 'offline' });
+            
+            if (isOnline) {
+                const instance = activeBots.get(botId);
+                sendPlayerList(botId, instance.bot);
+                sendInventory(botId, instance.bot);
+            }
         } catch {}
     });
 
@@ -910,6 +917,43 @@ io.on('connection', (socket) => {
         const instance = activeBots.get(currentBotId);
         if (instance && instance.bot) instance.bot.chat(message);
     });
+
+    // Manuel Yönlendirme Kontrolleri (W, A, S, D, Space vb.)
+    socket.on('controlState', ({ control, state }) => {
+        const instance = activeBots.get(currentBotId);
+        if (instance && instance.bot) {
+            instance.bot.setControlState(control, state);
+        }
+    });
+
+    // Hotbar Slot Değiştirme Kontrolü
+    socket.on('selectSlot', (slotIndex) => {
+        const instance = activeBots.get(currentBotId);
+        if (instance && instance.bot && slotIndex >= 0 && slotIndex < 9) {
+            instance.bot.setQuickBarSlot(slotIndex);
+        }
+    });
+
+    // Sağ Tık, Sol Tık ve Atma (Toss) Aksiyonları
+    socket.on('action', ({ type }) => {
+        const instance = activeBots.get(currentBotId);
+        if (!instance || !instance.bot) return;
+        const bot = instance.bot;
+
+        if (type === 'leftClick') {
+            bot.swingArm('right');
+            const entity = bot.entityAtCursor();
+            if (entity) bot.attack(entity);
+        } else if (type === 'rightClick') {
+            const block = bot.blockAtCursor();
+            if (block) bot.activateBlock(block);
+        } else if (type === 'drop') {
+            const item = bot.inventory.slots[bot.quickBarSlot + 36];
+            if (item) bot.tossStack(item);
+        }
+    });
+
+    socket.on('disconnect', () => {});
 });
 
 const PORT = 3000;

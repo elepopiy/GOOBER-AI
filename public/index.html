@@ -20,43 +20,49 @@
 
         /* MAIN PANEL UI */
         #app { display: flex; width: 100vw; height: 100vh; }
-        .sidebar { width: 300px; background: #0b0e14; border-right: 1px solid #1a2332; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .brand { font-family: 'Orbitron'; font-size: 20px; color: #ff0055; text-shadow: 0 0 8px #ff0055; text-align: center; margin-bottom: 10px; }
+        .sidebar { width: 320px; background: #0b0e14; border-right: 1px solid #1a2332; padding: 20px; display: flex; flex-direction: column; gap: 15px; justify-content: space-between; }
+        .brand { font-family: 'Orbitron'; font-size: 20px; color: #ff0055; text-shadow: 0 0 8px #ff0055; text-align: center; margin-bottom: 5px; }
+        .engine-specs { font-size: 11px; color: #8492a6; text-align: center; border-bottom: 1px dashed #1e293b; padding-bottom: 10px; font-family: monospace; }
         
-        .main-panel { flex: 1; display: grid; grid-template-rows: 70px 1fr 220px; gap: 12px; padding: 15px; background: #05070c; }
+        .main-panel { flex: 1; display: grid; grid-template-rows: 70px 1fr 240px; gap: 12px; padding: 15px; background: #05070c; overflow: hidden; }
         .top-bar { background: #0d121d; border: 1px solid #1e293b; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
 
-        .content-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; }
-        .card { background: #0c1017; border: 1px solid #192231; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; position: relative; overflow: hidden; }
-        .card h3 { font-family: 'Orbitron'; font-size: 14px; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+        .content-grid { display: grid; grid-template-columns: 1.8fr 1.2fr 1.2fr 1fr; gap: 12px; overflow: hidden; height: 100%; }
+        .card { background: #0c1017; border: 1px solid #192231; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; position: relative; overflow: hidden; height: 100%; }
+        .card h3 { font-family: 'Orbitron'; font-size: 13px; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; text-transform: uppercase; border-bottom: 1px solid #1e293b; padding-bottom: 5px; }
 
         /* CANLI EKRAN & TELEMETRİ */
-        .viewport-box { background: #020305; border: 1px dashed #00f0ff; height: 100%; border-radius: 6px; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: monospace; }
+        .viewport-box { background: #020305; border: 1px dashed #00f0ff; flex: 1; border-radius: 6px; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: monospace; overflow: hidden; }
         .radar-grid { position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,240,255,0.05) 0%, transparent 70%); pointer-events: none; }
-        .telemetry-tag { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); border: 1px solid #38bdf8; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: #a5f3fc; }
+        .telemetry-tag { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.85); border: 1px solid #38bdf8; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: #a5f3fc; line-height: 1.4; }
+        .ai-status-tag { position: absolute; bottom: 10px; right: 10px; background: rgba(255,0,85,0.15); border: 1px solid #ff0055; padding: 4px 8px; font-size: 11px; border-radius: 4px; color: #ff0055; font-family: 'Orbitron'; }
 
-        /* CHAT BOX */
-        .chat-box { flex: 1; overflow-y: auto; background: #030508; border: 1px solid #111827; padding: 10px; font-family: monospace; border-radius: 6px; margin-bottom: 10px; font-size: 13px; }
-        .chat-msg { margin-bottom: 4px; }
+        /* BOX STRUCTURES */
+        .chat-box, .notification-box, .global-panel-box, .player-list { flex: 1; overflow-y: auto; background: #030508; border: 1px solid #111827; padding: 10px; font-family: monospace; border-radius: 6px; font-size: 12px; }
+        .chat-msg { margin-bottom: 6px; line-height: 1.3; }
         .chat-msg b { color: #ff0055; }
-
-        /* PLAYER LIST */
-        .player-list { overflow-y: auto; max-height: 100%; }
-        .player-item { display: flex; align-items: center; gap: 10px; padding: 6px; border-bottom: 1px solid #111827; font-size: 14px; }
-        .player-item img { width: 28px; height: 28px; border-radius: 4px; border: 1px solid #00f0ff; }
+        
+        .notification-item { border-left: 3px solid #facc15; padding: 6px; background: #0d111a; margin-bottom: 6px; border-radius: 0 4px 4px 0; }
+        .notification-item.danger { border-left-color: #ef4444; }
+        .notification-item.success { border-left-color: #22c55e; }
+        
+        .global-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #0d121d; border: 1px solid #1e293b; margin-bottom: 6px; border-radius: 4px; }
+        .player-item { display: flex; align-items: center; gap: 10px; padding: 6px; border-bottom: 1px solid #111827; font-size: 13px; }
+        .player-item img { width: 24px; height: 24px; border-radius: 4px; border: 1px solid #00f0ff; }
 
         /* CONTROLS & HOTBAR */
         .hotbar { display: flex; gap: 6px; justify-content: center; background: #080b11; padding: 8px; border-radius: 6px; border: 1px solid #1e293b; }
-        .slot { width: 48px; height: 48px; background: #0f172a; border: 2px solid #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; font-weight: bold; position: relative; color: #f8fafc; border-radius: 4px; }
+        .slot { width: 44px; height: 44px; background: #0f172a; border: 2px solid #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 9px; font-weight: bold; position: relative; color: #f8fafc; border-radius: 4px; }
         .slot.active { border-color: #00f0ff; box-shadow: 0 0 10px #00f0ff; }
-        .slot .count { position: absolute; bottom: 2px; right: 4px; color: #facc15; font-size: 11px; }
+        .slot .count { position: absolute; bottom: 2px; right: 4px; color: #facc15; font-size: 10px; }
 
-        .btn { background: #0f172a; border: 1px solid #38bdf8; color: #38bdf8; padding: 8px 14px; cursor: pointer; border-radius: 4px; font-weight: bold; font-family: 'Orbitron'; transition: 0.2s; text-align: center; }
+        .btn { background: #0f172a; border: 1px solid #38bdf8; color: #38bdf8; padding: 8px 14px; cursor: pointer; border-radius: 4px; font-weight: bold; font-family: 'Orbitron'; transition: 0.2s; text-align: center; font-size: 12px; }
         .btn:hover { background: #38bdf8; color: #000; box-shadow: 0 0 10px #38bdf8; }
         .btn-danger { border-color: #ef4444; color: #ef4444; }
         .btn-danger:hover { background: #ef4444; color: #fff; box-shadow: 0 0 10px #ef4444; }
         .btn-success { border-color: #22c55e; color: #22c55e; }
         .btn-success:hover { background: #22c55e; color: #000; box-shadow: 0 0 10px #22c55e; }
+        .btn-sm { padding: 3px 6px; font-size: 10px; }
 
         /* TOGGLE SWITCH */
         .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
@@ -66,7 +72,8 @@
         input:checked + .slider { background-color: #00f0ff; }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        input, select { background: #080a10; border: 1px solid #1e293b; color: #fff; padding: 8px; border-radius: 4px; outline: none; }
+        input, select, textarea { background: #080a10; border: 1px solid #1e293b; color: #fff; padding: 8px; border-radius: 4px; outline: none; font-size: 12px; }
+        .studio-footer { text-align: center; font-size: 10px; color: #475569; font-family: 'Orbitron'; letter-spacing: 1px; padding-top: 10px; border-top: 1px solid #1e293b; }
     </style>
 </head>
 <body>
@@ -74,6 +81,7 @@
 <div id="auth-container">
     <div class="auth-box">
         <h2>G.O.O.B.E.R v2.0</h2>
+        <div style="color: #8492a6; font-size: 11px; margin-bottom: 15px; font-family: monospace;">POWERED BY EMN STUDIO</div>
         <input type="text" id="auth-user" placeholder="Operatör Adı">
         <input type="password" id="auth-pass" placeholder="Şifre">
         <button onclick="login()">SİSTEME GİRİŞ YAP</button>
@@ -83,9 +91,15 @@
 
 <div id="app" style="display:none;">
     <div class="sidebar">
-        <div class="brand">G.O.O.B.E.R AI</div>
-        <button class="btn btn-success" onclick="createBot()">+ YENİ BOT OLUŞTUR</button>
-        <div id="bot-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <div class="brand">G.O.O.B.E.R AI</div>
+            <div class="engine-specs">EMN STUDIO // LLAMA-3-70B-NEURAL</div>
+            <button class="btn btn-success" onclick="createBot()">+ YENİ BOT OLUŞTUR</button>
+            <div id="bot-list" style="display:flex; flex-direction:column; gap:8px; max-height: 60vh; overflow-y: auto;"></div>
+        </div>
+        <div class="studio-footer">
+            DEVELOPED BY EMN STUDIO © 2026
+        </div>
     </div>
 
     <div class="main-panel">
@@ -93,6 +107,7 @@
             <div>
                 <h2 id="active-bot-title" style="font-family:'Orbitron'; color:#00f0ff;">BOT SEÇİLMEDİ</h2>
                 <span id="bot-status-badge" style="font-size:12px; color:#94a3b8;">Sistem Beklemede</span>
+                <span id="bot-personality-badge" style="font-size:11px; color:#facc15; margin-left:10px; font-family:monospace;"></span>
             </div>
             <div style="display:flex; gap:10px;">
                 <button class="btn btn-success" onclick="startBot()">SUNUCUYA BAĞLAN</button>
@@ -103,20 +118,21 @@
         <div class="content-grid">
             <!-- CANLI VIRTUAL EKRAN / RADAR -->
             <div class="card">
-                <h3>CANLI SİMÜLASYON & TELEMETRİ</h3>
+                <h3>SİMÜLASYON & AI AKIŞI</h3>
                 <div class="viewport-box">
                     <div class="radar-grid"></div>
                     <div class="telemetry-tag" id="telemetry-data">X: 0.0 | Y: 0.0 | Z: 0.0<br>Sağlık: 20 | Açlık: 20</div>
+                    <div class="ai-status-tag" id="ai-realtime-action">AI BOŞTA</div>
                     <div style="text-align:center; z-index:2;">
                         <div style="font-size:40px;">🤖</div>
-                        <div id="bot-live-action" style="color:#00f0ff; font-family:'Orbitron'; font-size:12px;">HAREKET BEKLENİYOR</div>
+                        <div id="bot-live-action" style="color:#00f0ff; font-family:'Orbitron'; font-size:12px; margin-top:5px;">HAREKET BEKLENİYOR</div>
                     </div>
                 </div>
             </div>
 
             <!-- CHAT & SOHBET -->
             <div class="card">
-                <h3>SOHBET & OYUN LOGLARI</h3>
+                <h3>SOHBET LOGLARI</h3>
                 <div class="chat-box" id="chat-log"></div>
                 <div style="display:flex; gap:5px;">
                     <input type="text" id="chat-input" placeholder="Oyun içi mesaj..." style="flex:1;">
@@ -124,9 +140,18 @@
                 </div>
             </div>
 
+            <!-- MÜŞTEREK AKTİF PANELLER & BİLDİRİMLER -->
+            <div class="card">
+                <h3>KÜRESEL PANELLER & ALERTLER</h3>
+                <div style="font-size: 11px; color: #38bdf8; margin-bottom: 4px;">Aktif Operatör Panelleri</div>
+                <div class="global-panel-box" id="global-panels" style="max-height: 45%;"></div>
+                <div style="font-size: 11px; color: #ff0055; margin-top: 8px; margin-bottom: 4px;">Sistem Bildirimleri</div>
+                <div class="notification-box" id="notification-log"></div>
+            </div>
+
             <!-- OYUNCU LİSTESİ -->
             <div class="card">
-                <h3>SUNUCUDAKİLER (A-Z)</h3>
+                <h3>SUNUCUDAKİLER</h3>
                 <div class="player-list" id="player-list"></div>
             </div>
         </div>
@@ -134,42 +159,44 @@
         <!-- ALT DÜZENLEME & KONTROL PANELİ -->
         <div class="card" style="display:grid; grid-template-columns: 1fr 1fr 1.2fr; gap:15px; align-items:center;">
             <!-- DİNAMİK SUNUCU & AI AYARLARI -->
-            <div style="display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; flex-direction:column; gap:6px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-family:'Orbitron'; font-size:12px; color:#38bdf8;">YAPAY ZEKA MODU</span>
+                    <span style="font-family:'Orbitron'; font-size:11px; color:#38bdf8;">YAPAY ZEKA MODU (LLAMA 70B)</span>
                     <label class="switch">
                         <input type="checkbox" id="ai-toggle" onchange="updateBotSettings()">
                         <span class="slider"></span>
                     </label>
                 </div>
-                <input type="text" id="cfg-host" placeholder="Sunucu IP (Örn: localhost)" style="font-size:12px;">
-                <input type="number" id="cfg-port" placeholder="Port (Örn: 25565)" style="font-size:12px;">
-                <input type="password" id="cfg-apikey" placeholder="Groq API Key (gsk_...)" style="font-size:12px;">
-                <button class="btn" onclick="updateBotSettings()" style="font-size:10px;">AYARLARI KAYDET</button>
+                <div style="display:grid; grid-template-columns: 2fr 1fr; gap:5px;">
+                    <input type="text" id="cfg-host" placeholder="Sunucu IP" style="font-size:11px; padding:6px;">
+                    <input type="number" id="cfg-port" placeholder="Port" style="font-size:11px; padding:6px;">
+                </div>
+                <input type="password" id="cfg-apikey" placeholder="Groq API Key (gsk_...)" style="font-size:11px; padding:6px;">
+                <button class="btn" onclick="updateBotSettings()" style="font-size:10px; padding:6px;">AYARLARI RE-KALEBRE ET</button>
             </div>
 
             <!-- AI ÖZEL KOMUT MERKEZİ -->
-            <div style="display:flex; flex-direction:column; gap:8px; border-left:1px solid #1e293b; padding-left:15px;">
-                <span style="font-family:'Orbitron'; font-size:12px; color:#ff0055;">YAPAY ZEKAYA DİREKT EMİR VER</span>
-                <textarea id="ai-command-input" placeholder="Örn: 'Git en yakındaki ağacı kes' veya 'Beni takip et'" style="height:65px; background:#080a10; border:1px solid #1e293b; color:#fff; padding:6px; border-radius:4px; font-size:12px; resize:none;"></textarea>
-                <button class="btn" onclick="sendAICommand()" style="border-color:#ff0055; color:#ff0055;">EMRİ İLET</button>
+            <div style="display:flex; flex-direction:column; gap:6px; border-left:1px solid #1e293b; padding-left:15px;">
+                <span style="font-family:'Orbitron'; font-size:11px; color:#ff0055;">YAPAY ZEKAYA KORTİKAL EMİR VER</span>
+                <textarea id="ai-command-input" placeholder="Örn: 'Madene inip demir ara' veya 'Beni koru'" style="height:60px; background:#080a10; border:1px solid #1e293b; color:#fff; padding:6px; border-radius:4px; font-size:11px; resize:none;"></textarea>
+                <button class="btn" onclick="sendAICommand()" style="border-color:#ff0055; color:#ff0055; font-size:11px; padding:6px;">EMRİ NÖRONLARA İLET</button>
             </div>
 
             <!-- ENVANTER & MANUEL KONTROLLER -->
-            <div style="display:flex; flex-direction:column; gap:8px; border-left:1px solid #1e293b; padding-left:15px;">
-                <span style="font-family:'Orbitron'; font-size:12px; color:#38bdf8;">ENVANTER & MANUEL MANEVRA</span>
+            <div style="display:flex; flex-direction:column; gap:6px; border-left:1px solid #1e293b; padding-left:15px;">
+                <span style="font-family:'Orbitron'; font-size:11px; color:#38bdf8;">ENVANTER & HAREKET MANEVRASI</span>
                 <div class="hotbar" id="hotbar"></div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div style="display:grid; grid-template-columns: repeat(3, 30px); gap:3px;">
-                        <div></div><div class="btn" style="padding:4px;" onmousedown="setMove('forward', true)" onmouseup="setMove('forward', false)">W</div><div></div>
-                        <div class="btn" style="padding:4px;" onmousedown="setMove('left', true)" onmouseup="setMove('left', false)">A</div>
-                        <div class="btn" style="padding:4px;" onmousedown="setMove('back', true)" onmouseup="setMove('back', false)">S</div>
-                        <div class="btn" style="padding:4px;" onmousedown="setMove('right', true)" onmouseup="setMove('right', false)">D</div>
+                    <div style="display:grid; grid-template-columns: repeat(3, 28px); gap:3px;">
+                        <div></div><div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('forward', true)" onmouseup="setMove('forward', false)">W</div><div></div>
+                        <div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('left', true)" onmouseup="setMove('left', false)">A</div>
+                        <div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('back', true)" onmouseup="setMove('back', false)">S</div>
+                        <div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('right', true)" onmouseup="setMove('right', false)">D</div>
                     </div>
                     <div style="display:flex; gap:4px;">
-                        <button class="btn" style="font-size:10px;" onclick="triggerAction('leftClick')">SOL TIK</button>
-                        <button class="btn" style="font-size:10px;" onclick="triggerAction('rightClick')">SAĞ TIK</button>
-                        <button class="btn btn-danger" style="font-size:10px;" onclick="triggerAction('drop')">AT</button>
+                        <button class="btn" style="font-size:9px; padding:4px 8px;" onclick="triggerAction('leftClick')">SOL TIK</button>
+                        <button class="btn" style="font-size:9px; padding:4px 8px;" onclick="triggerAction('rightClick')">SAĞ TIK</button>
+                        <button class="btn btn-danger" style="font-size:9px; padding:4px 8px;" onclick="triggerAction('drop')">AT</button>
                     </div>
                 </div>
             </div>
@@ -181,6 +208,7 @@
     let token = '';
     let socket = io();
     let selectedBot = null;
+    let registeredBotNamesGlobal = []; // Platform genelindeki bot isimleri simülasyon listesi
 
     async function register() {
         const username = document.getElementById('auth-user').value;
@@ -200,6 +228,8 @@
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
             loadBots();
+            loadGlobalPanels();
+            pushNotification("Sistem", "EMN STUDIO LLaMA 70B Yapay Zeka Motoru başarıyla yüklendi.", "success");
         } else alert(data.error);
     }
 
@@ -208,6 +238,10 @@
         const bots = await res.json();
         const list = document.getElementById('bot-list');
         list.innerHTML = '';
+        
+        // Global isim kontrolü için listeyi güncelle
+        registeredBotNamesGlobal = bots.map(b => b.name.toLowerCase());
+
         bots.forEach(b => {
             const btn = document.createElement('button');
             btn.className = 'btn';
@@ -220,22 +254,35 @@
     }
 
     async function createBot() {
-        const name = prompt("Bot İsmi:");
+        const name = prompt("Unique Bot İsmi (Tüm platformda benzersiz olmalıdır):");
+        if (!name) return;
+
+        // PLATFORM GENELİ AYNI ADDA BOT OLUŞTURMA ENGELİ
+        if (registeredBotNamesGlobal.includes(name.toLowerCase())) {
+            alert(`HATA: '${name}' ismiyle bir bot zaten mevcut! Platform genelinde aynı isimde ikinci bir bot oluşturulamaz.`);
+            pushNotification("Kritik Hata", "Benzersiz isim kuralı ihlali: Bot oluşturulamadı.", "danger");
+            return;
+        }
+
         const username = prompt("Minecraft Kullanıcı Adı:");
+        const personality = prompt("Bot Kişiliği Belirleyin (Örn: Agresif, Koruyucu, Madenci, Troll, Alaycı):", "Madenci");
         const apiKey = prompt("Groq API Key (İsteğe Bağlı):");
-        if (!name || !username) return;
+        if (!username) return;
 
         await fetch('/api/bots', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-            body: JSON.stringify({ name, username, apiKey, host: 'localhost', port: 25565, aiEnabled: true })
+            body: JSON.stringify({ name, username, apiKey, host: 'localhost', port: 25565, aiEnabled: true, personality })
         });
+        
+        pushNotification("Sistem", `${name} adında [${personality}] kişilikli bot oluşturuldu.`, "success");
         loadBots();
     }
 
     function selectBot(bot) {
         selectedBot = bot;
         document.getElementById('active-bot-title').innerText = bot.name.toUpperCase();
+        document.getElementById('bot-personality-badge').innerText = `KİŞİLİK: ${bot.personality || 'Standart'}`;
         document.getElementById('cfg-host').value = bot.host;
         document.getElementById('cfg-port').value = bot.port;
         document.getElementById('cfg-apikey').value = bot.apiKey || '';
@@ -243,6 +290,7 @@
         document.getElementById('chat-log').innerHTML = '';
 
         socket.emit('joinBotRoom', { botId: bot.id, token });
+        pushNotification("Bağlantı", `${bot.name} kontrol paneline bağlanıldı.`, "success");
     }
 
     async function updateBotSettings() {
@@ -268,15 +316,62 @@
         const input = document.getElementById('ai-command-input');
         if (input.value) {
             socket.emit('directAICommand', input.value);
+            pushNotification("Kortikal Emir", `AI Motoruna İletildi: "${input.value}"`, "success");
             input.value = '';
         }
     }
 
-    // TELEMETRİ & CANLI EKRAN
+    // TELEMETRİ & YAPAY ZEKANIN YAPTIĞI HAREKETLERİN PANELE YANSIMASI
     socket.on('botTelemetry', data => {
         document.getElementById('telemetry-data').innerHTML = 
             `X: ${data.x} | Y: ${data.y} | Z: ${data.z}<br>Sağlık: ${data.health} ❤️ | Açlık: ${data.food} 🍖`;
         document.getElementById('bot-live-action').innerText = `YAW: ${data.yaw} | PITCH: ${data.pitch}`;
+        
+        // Yapay zeka tarafından yapılan anlık eylemlerin arayüze yansıması
+        if(data.currentAIAction) {
+            document.getElementById('ai-realtime-action').innerText = data.currentAIAction.toUpperCase();
+            if(data.aiActionLogged) {
+                pushNotification("AI Kararı", `${selectedBot.name} -> ${data.currentAIAction}`, "success");
+            }
+        }
+    });
+
+    // DİĞER İNSANLARIN AKTİF PANELİNİ GÖREBİLME VE ERİŞİM İSTEĞİ ATMA
+    function loadGlobalPanels() {
+        // Backend'den gelen aktif global operatör panelleri listesi simülasyonu
+        const globalBox = document.getElementById('global-panels');
+        globalBox.innerHTML = `
+            <div class="global-item">
+                <span>Operatör: Matrix_Cyber (Bot: GooberX)</span>
+                <button class="btn btn-sm" onclick="requestAccess('Matrix_Cyber', 'GooberX')">Erişim İste</button>
+            </div>
+            <div class="global-item">
+                <span>Operatör: V_Cyberpunk (Bot: JohnnyBot)</span>
+                <button class="btn btn-sm" onclick="requestAccess('V_Cyberpunk', 'JohnnyBot')">Erişim İste</button>
+            </div>
+        `;
+    }
+
+    function requestAccess(operator, botName) {
+        pushNotification("Erişim Talebi", `${operator} kullanıcısının ${botName} paneline erişim isteği gönderildi. Yanıt bekleniyor...`, "");
+        socket.emit('requestPanelAccess', { targetOperator: operator, targetBot: botName });
+    }
+
+    // BİLDİRİMLER BÖLMESİ FONKSİYONU
+    function pushNotification(title, message, type) {
+        const log = document.getElementById('notification-log');
+        const time = new Date().toLocaleTimeString();
+        log.innerHTML += `
+            <div class="notification-item ${type}">
+                <strong>[${time}] ${title}:</strong> ${message}
+            </div>`;
+        log.scrollTop = log.scrollHeight;
+    }
+
+    socket.on('incomingAccessRequest', data => {
+        pushNotification("GELEN TALEP", `${data.fromUser} sizin panelinize erişmek istiyor!`, "danger");
+        const accept = confirm(`${data.fromUser} sizin aktif bot panelinize erişim izni istiyor. Onaylıyor musunuz?`);
+        socket.emit('responsePanelAccess', { requestId: data.requestId, approved: accept });
     });
 
     socket.on('status', data => {
