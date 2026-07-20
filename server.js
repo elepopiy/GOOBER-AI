@@ -843,7 +843,10 @@ function startBotInstance(botConfig) {
     bot.on('playerJoined', () => sendPlayerList(botConfig.id, bot));
     bot.on('playerLeft', () => sendPlayerList(botConfig.id, bot));
 
-    bot.inventory.on('updateSlot', () => sendInventory(botConfig.id, bot));
+    // Envanter nesnesi hazır olduğunda dinleyiciyi bağlamak için spawn olayını bekle
+    bot.once('spawn', () => {
+        bot.inventory.on('updateSlot', () => sendInventory(botConfig.id, bot));
+    });
 
     bot.on('chat', (username, message) => {
         io.to(botConfig.id).emit('chat', { username, message, time: new Date().toLocaleTimeString() });
