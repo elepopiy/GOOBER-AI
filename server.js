@@ -398,7 +398,7 @@ function startBotInstance(botConfig) {
 
 function stopBotInstance(botId) {
     if (activeBots.has(botId)) {
-        activeBots.get(botId).bot.quit();
+        activeBots.get(botId).bot.end(); // quit() yerine end() eklendi
         activeBots.delete(botId);
     }
 }
