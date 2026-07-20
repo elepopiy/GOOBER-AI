@@ -9,21 +9,20 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Rajdhani', sans-serif; }
         body { background: #08090c; color: #00f0ff; height: 100vh; overflow: hidden; display: flex; }
-        
-        /* AUTH SECTION */
+
         #auth-container { position: fixed; inset: 0; background: rgba(5,7,12,0.95); backdrop-filter: blur(10px); z-index: 9999; display: flex; align-items: center; justify-content: center; }
         .auth-box { background: #0f131d; border: 2px solid #00f0ff; box-shadow: 0 0 20px rgba(0,240,255,0.3); padding: 40px; border-radius: 12px; width: 360px; text-align: center; }
         .auth-box h2 { font-family: 'Orbitron', sans-serif; color: #ff0055; margin-bottom: 20px; text-shadow: 0 0 10px #ff0055; }
         .auth-box input { width: 100%; margin: 10px 0; padding: 12px; background: #080a10; border: 1px solid #00f0ff; color: #fff; border-radius: 6px; outline: none; }
         .auth-box button { width: 100%; padding: 12px; margin-top: 10px; background: #00f0ff; border: none; color: #000; font-weight: bold; cursor: pointer; border-radius: 6px; font-family: 'Orbitron'; transition: 0.2s; }
         .auth-box button:hover { background: #ff0055; color: #fff; box-shadow: 0 0 15px #ff0055; }
+        .auth-error { color: #ff0055; font-size: 12px; min-height: 16px; margin-top: 6px; }
 
-        /* MAIN PANEL UI */
         #app { display: flex; width: 100vw; height: 100vh; }
         .sidebar { width: 320px; background: #0b0e14; border-right: 1px solid #1a2332; padding: 20px; display: flex; flex-direction: column; gap: 15px; justify-content: space-between; }
         .brand { font-family: 'Orbitron'; font-size: 20px; color: #ff0055; text-shadow: 0 0 8px #ff0055; text-align: center; margin-bottom: 5px; }
         .engine-specs { font-size: 11px; color: #8492a6; text-align: center; border-bottom: 1px dashed #1e293b; padding-bottom: 10px; font-family: monospace; }
-        
+
         .main-panel { flex: 1; display: grid; grid-template-rows: 70px 1fr 240px; gap: 12px; padding: 15px; background: #05070c; overflow: hidden; }
         .top-bar { background: #0d121d; border: 1px solid #1e293b; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; border-radius: 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.8); }
 
@@ -31,26 +30,24 @@
         .card { background: #0c1017; border: 1px solid #192231; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; position: relative; overflow: hidden; height: 100%; }
         .card h3 { font-family: 'Orbitron'; font-size: 13px; color: #38bdf8; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; text-transform: uppercase; border-bottom: 1px solid #1e293b; padding-bottom: 5px; }
 
-        /* CANLI EKRAN & TELEMETRİ */
         .viewport-box { background: #020305; border: 1px dashed #00f0ff; flex: 1; border-radius: 6px; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: monospace; overflow: hidden; }
         .radar-grid { position: absolute; inset: 0; background: radial-gradient(circle, rgba(0,240,255,0.05) 0%, transparent 70%); pointer-events: none; }
         .telemetry-tag { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.85); border: 1px solid #38bdf8; padding: 5px 10px; font-size: 12px; border-radius: 4px; color: #a5f3fc; line-height: 1.4; }
         .ai-status-tag { position: absolute; bottom: 10px; right: 10px; background: rgba(255,0,85,0.15); border: 1px solid #ff0055; padding: 4px 8px; font-size: 11px; border-radius: 4px; color: #ff0055; font-family: 'Orbitron'; }
+        .reconnect-tag { position: absolute; top: 10px; right: 10px; background: rgba(250,204,21,0.15); border: 1px solid #facc15; padding: 4px 8px; font-size: 11px; border-radius: 4px; color: #facc15; font-family: 'Orbitron'; display: none; }
 
-        /* BOX STRUCTURES */
         .chat-box, .notification-box, .global-panel-box, .player-list { flex: 1; overflow-y: auto; background: #030508; border: 1px solid #111827; padding: 10px; font-family: monospace; border-radius: 6px; font-size: 12px; }
-        .chat-msg { margin-bottom: 6px; line-height: 1.3; }
+        .chat-msg { margin-bottom: 6px; line-height: 1.3; word-break: break-word; }
         .chat-msg b { color: #ff0055; }
-        
+
         .notification-item { border-left: 3px solid #facc15; padding: 6px; background: #0d111a; margin-bottom: 6px; border-radius: 0 4px 4px 0; }
         .notification-item.danger { border-left-color: #ef4444; }
         .notification-item.success { border-left-color: #22c55e; }
-        
+
         .global-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #0d121d; border: 1px solid #1e293b; margin-bottom: 6px; border-radius: 4px; }
         .player-item { display: flex; align-items: center; gap: 10px; padding: 6px; border-bottom: 1px solid #111827; font-size: 13px; }
         .player-item img { width: 24px; height: 24px; border-radius: 4px; border: 1px solid #00f0ff; }
 
-        /* CONTROLS & HOTBAR */
         .hotbar { display: flex; gap: 6px; justify-content: center; background: #080b11; padding: 8px; border-radius: 6px; border: 1px solid #1e293b; }
         .slot { width: 44px; height: 44px; background: #0f172a; border: 2px solid #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; font-size: 9px; font-weight: bold; position: relative; color: #f8fafc; border-radius: 4px; }
         .slot.active { border-color: #00f0ff; box-shadow: 0 0 10px #00f0ff; }
@@ -63,8 +60,8 @@
         .btn-success { border-color: #22c55e; color: #22c55e; }
         .btn-success:hover { background: #22c55e; color: #000; box-shadow: 0 0 10px #22c55e; }
         .btn-sm { padding: 3px 6px; font-size: 10px; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 
-        /* TOGGLE SWITCH */
         .switch { position: relative; display: inline-block; width: 44px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; inset: 0; background-color: #334155; transition: .3s; border-radius: 20px; }
@@ -74,18 +71,21 @@
 
         input, select, textarea { background: #080a10; border: 1px solid #1e293b; color: #fff; padding: 8px; border-radius: 4px; outline: none; font-size: 12px; }
         .studio-footer { text-align: center; font-size: 10px; color: #475569; font-family: 'Orbitron'; letter-spacing: 1px; padding-top: 10px; border-top: 1px solid #1e293b; }
+        .bot-entry { display: flex; align-items: center; gap: 6px; }
+        .bot-entry .btn { flex: 1; }
     </style>
 </head>
 <body>
 
 <div id="auth-container">
     <div class="auth-box">
-        <h2>G.O.O.B.E.R v2.0</h2>
+        <h2>G.O.O.B.E.R v7.1</h2>
         <div style="color: #8492a6; font-size: 11px; margin-bottom: 15px; font-family: monospace;">POWERED BY EMN STUDIO</div>
-        <input type="text" id="auth-user" placeholder="Operatör Adı">
-        <input type="password" id="auth-pass" placeholder="Şifre">
-        <button onclick="login()">SİSTEME GİRİŞ YAP</button>
+        <input type="text" id="auth-user" placeholder="Operatör Adı" autocomplete="username">
+        <input type="password" id="auth-pass" placeholder="Şifre" autocomplete="current-password">
+        <button id="login-btn" onclick="login()">SİSTEME GİRİŞ YAP</button>
         <button onclick="register()" style="background:transparent; border:1px solid #ff0055; color:#ff0055; margin-top:5px;">YENİ OPERATÖR KAYDI</button>
+        <div class="auth-error" id="auth-error"></div>
     </div>
 </div>
 
@@ -93,7 +93,7 @@
     <div class="sidebar">
         <div style="display:flex; flex-direction:column; gap:10px;">
             <div class="brand">G.O.O.B.E.R AI</div>
-            <div class="engine-specs">EMN STUDIO // LLAMA-3-70B-NEURAL</div>
+            <div class="engine-specs">EMN STUDIO // LLAMA-3.3-70B-NEURAL</div>
             <button class="btn btn-success" onclick="createBot()">+ YENİ BOT OLUŞTUR</button>
             <div id="bot-list" style="display:flex; flex-direction:column; gap:8px; max-height: 60vh; overflow-y: auto;"></div>
         </div>
@@ -116,13 +116,13 @@
         </div>
 
         <div class="content-grid">
-            <!-- CANLI VIRTUAL EKRAN / RADAR -->
             <div class="card">
                 <h3>SİMÜLASYON & AI AKIŞI</h3>
                 <div class="viewport-box">
                     <div class="radar-grid"></div>
                     <div class="telemetry-tag" id="telemetry-data">X: 0.0 | Y: 0.0 | Z: 0.0<br>Sağlık: 20 | Açlık: 20</div>
                     <div class="ai-status-tag" id="ai-realtime-action">AI BOŞTA</div>
+                    <div class="reconnect-tag" id="reconnect-tag">YENİDEN BAĞLANIYOR...</div>
                     <div style="text-align:center; z-index:2;">
                         <div style="font-size:40px;">🤖</div>
                         <div id="bot-live-action" style="color:#00f0ff; font-family:'Orbitron'; font-size:12px; margin-top:5px;">HAREKET BEKLENİYOR</div>
@@ -130,35 +130,30 @@
                 </div>
             </div>
 
-            <!-- CHAT & SOHBET -->
             <div class="card">
                 <h3>SOHBET LOGLARI</h3>
                 <div class="chat-box" id="chat-log"></div>
                 <div style="display:flex; gap:5px;">
-                    <input type="text" id="chat-input" placeholder="Oyun içi mesaj..." style="flex:1;">
+                    <input type="text" id="chat-input" placeholder="Oyun içi mesaj..." style="flex:1;" onkeydown="if(event.key==='Enter') sendChat()">
                     <button class="btn" onclick="sendChat()">GÖNDER</button>
                 </div>
             </div>
 
-            <!-- MÜŞTEREK AKTİF PANELLER & BİLDİRİMLER -->
             <div class="card">
                 <h3>KÜRESEL PANELLER & ALERTLER</h3>
-                <div style="font-size: 11px; color: #38bdf8; margin-bottom: 4px;">Aktif Operatör Panelleri</div>
+                <div style="font-size: 11px; color: #38bdf8; margin-bottom: 4px;">Çevrimiçi Operatör Panelleri</div>
                 <div class="global-panel-box" id="global-panels" style="max-height: 45%;"></div>
                 <div style="font-size: 11px; color: #ff0055; margin-top: 8px; margin-bottom: 4px;">Sistem Bildirimleri</div>
                 <div class="notification-box" id="notification-log"></div>
             </div>
 
-            <!-- OYUNCU LİSTESİ -->
             <div class="card">
                 <h3>SUNUCUDAKİLER</h3>
                 <div class="player-list" id="player-list"></div>
             </div>
         </div>
 
-        <!-- ALT DÜZENLEME & KONTROL PANELİ -->
         <div class="card" style="display:grid; grid-template-columns: 1fr 1fr 1.2fr; gap:15px; align-items:center;">
-            <!-- DİNAMİK SUNUCU & AI AYARLARI -->
             <div style="display:flex; flex-direction:column; gap:6px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-family:'Orbitron'; font-size:11px; color:#38bdf8;">YAPAY ZEKA MODU (LLAMA 70B)</span>
@@ -167,31 +162,37 @@
                         <span class="slider"></span>
                     </label>
                 </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-family:'Orbitron'; font-size:10px; color:#facc15;">SUNUCU YENİDEN BAŞLARSA OTO-BAĞLAN</span>
+                    <label class="switch">
+                        <input type="checkbox" id="autostart-toggle" onchange="updateBotSettings()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
                 <div style="display:grid; grid-template-columns: 2fr 1fr; gap:5px;">
                     <input type="text" id="cfg-host" placeholder="Sunucu IP" style="font-size:11px; padding:6px;">
                     <input type="number" id="cfg-port" placeholder="Port" style="font-size:11px; padding:6px;">
                 </div>
                 <input type="password" id="cfg-apikey" placeholder="Groq API Key (gsk_...)" style="font-size:11px; padding:6px;">
+                <input type="text" id="cfg-personality" placeholder="Kişilik (Agresif, Koruyucu, Madenci...)" style="font-size:11px; padding:6px;">
                 <button class="btn" onclick="updateBotSettings()" style="font-size:10px; padding:6px;">AYARLARI RE-KALEBRE ET</button>
             </div>
 
-            <!-- AI ÖZEL KOMUT MERKEZİ -->
             <div style="display:flex; flex-direction:column; gap:6px; border-left:1px solid #1e293b; padding-left:15px;">
                 <span style="font-family:'Orbitron'; font-size:11px; color:#ff0055;">YAPAY ZEKAYA KORTİKAL EMİR VER</span>
-                <textarea id="ai-command-input" placeholder="Örn: 'Madene inip demir ara' veya 'Beni koru'" style="height:60px; background:#080a10; border:1px solid #1e293b; color:#fff; padding:6px; border-radius:4px; font-size:11px; resize:none;"></textarea>
+                <textarea id="ai-command-input" placeholder="Örn: 'Madene inip demir ara' veya 'Beni koru'" style="height:60px; background:#080a10; border:1px solid #1e293b; color:#fff; padding:6px; border-radius:4px; font-size:11px; resize:none;" onkeydown="if(event.key==='Enter' && event.ctrlKey) sendAICommand()"></textarea>
                 <button class="btn" onclick="sendAICommand()" style="border-color:#ff0055; color:#ff0055; font-size:11px; padding:6px;">EMRİ NÖRONLARA İLET</button>
             </div>
 
-            <!-- ENVANTER & MANUEL KONTROLLER -->
             <div style="display:flex; flex-direction:column; gap:6px; border-left:1px solid #1e293b; padding-left:15px;">
                 <span style="font-family:'Orbitron'; font-size:11px; color:#38bdf8;">ENVANTER & HAREKET MANEVRASI</span>
                 <div class="hotbar" id="hotbar"></div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <div style="display:grid; grid-template-columns: repeat(3, 28px); gap:3px;">
-                        <div></div><div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('forward', true)" onmouseup="setMove('forward', false)">W</div><div></div>
-                        <div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('left', true)" onmouseup="setMove('left', false)">A</div>
-                        <div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('back', true)" onmouseup="setMove('back', false)">S</div>
-                        <div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('right', true)" onmouseup="setMove('right', false)">D</div>
+                        <div></div><div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('forward', true)" onmouseup="setMove('forward', false)" onmouseleave="setMove('forward', false)">W</div><div></div>
+                        <div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('left', true)" onmouseup="setMove('left', false)" onmouseleave="setMove('left', false)">A</div>
+                        <div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('back', true)" onmouseup="setMove('back', false)" onmouseleave="setMove('back', false)">S</div>
+                        <div class="btn" style="padding:2px; font-size:10px;" onmousedown="setMove('right', true)" onmouseup="setMove('right', false)" onmouseleave="setMove('right', false)">D</div>
                     </div>
                     <div style="display:flex; gap:4px;">
                         <button class="btn" style="font-size:9px; padding:4px 8px;" onclick="triggerAction('leftClick')">SOL TIK</button>
@@ -205,78 +206,127 @@
 </div>
 
 <script>
-    let token = '';
+    let token = localStorage.getItem('goober_token') || '';
+    let myUsername = localStorage.getItem('goober_username') || '';
     let socket = io();
     let selectedBot = null;
-    let registeredBotNamesGlobal = []; // Platform genelindeki bot isimleri simülasyon listesi
+    let bots = [];
+
+    // --- Bağlantı kopunca kullanıcıyı bilgilendir, sunucu kendini toparlarken panik yapma ---
+    socket.on('connect', () => {
+        if (token) socket.emit('authenticate', token);
+        if (selectedBot) socket.emit('joinBotRoom', { botId: selectedBot.id, token });
+    });
+    socket.on('connect_error', () => pushNotification("Bağlantı", "Sunucuya bağlanılamadı, yeniden deneniyor...", "danger"));
+    socket.on('disconnect', () => pushNotification("Bağlantı", "Sunucu bağlantısı koptu, otomatik olarak yeniden bağlanılıyor...", "danger"));
+
+    function setAuthError(msg) { document.getElementById('auth-error').innerText = msg || ''; }
+
+    async function apiCall(url, options = {}) {
+        try {
+            const res = await fetch(url, options);
+            let data = {};
+            try { data = await res.json(); } catch (e) {}
+            if (!res.ok) throw new Error(data.error || `İstek başarısız (HTTP ${res.status})`);
+            return data;
+        } catch (e) {
+            throw e;
+        }
+    }
 
     async function register() {
-        const username = document.getElementById('auth-user').value;
+        setAuthError('');
+        const username = document.getElementById('auth-user').value.trim();
         const password = document.getElementById('auth-pass').value;
-        const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
-        const data = await res.json();
-        alert(data.message || data.error);
+        if (!username || !password) return setAuthError('Kullanıcı adı ve şifre gerekli.');
+        try {
+            const data = await apiCall('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
+            setAuthError('Kayıt başarılı, şimdi giriş yapabilirsiniz.');
+        } catch (e) { setAuthError(e.message); }
     }
 
     async function login() {
-        const username = document.getElementById('auth-user').value;
+        setAuthError('');
+        const username = document.getElementById('auth-user').value.trim();
         const password = document.getElementById('auth-pass').value;
-        const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
-        const data = await res.json();
-        if (data.token) {
+        if (!username || !password) return setAuthError('Kullanıcı adı ve şifre gerekli.');
+        try {
+            const data = await apiCall('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, password }) });
             token = data.token;
+            myUsername = data.username || username;
+            localStorage.setItem('goober_token', token);
+            localStorage.setItem('goober_username', myUsername);
             document.getElementById('auth-container').style.display = 'none';
             document.getElementById('app').style.display = 'flex';
+            socket.emit('authenticate', token);
             loadBots();
-            loadGlobalPanels();
             pushNotification("Sistem", "EMN STUDIO LLaMA 70B Yapay Zeka Motoru başarıyla yüklendi.", "success");
-        } else alert(data.error);
+        } catch (e) { setAuthError(e.message); }
+    }
+
+    // Sayfa yenilendiğinde oturumu koru
+    if (token) {
+        document.getElementById('auth-container').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+        socket.emit('authenticate', token);
+        loadBots();
     }
 
     async function loadBots() {
-        const res = await fetch('/api/bots', { headers: { 'Authorization': 'Bearer ' + token } });
-        const bots = await res.json();
-        const list = document.getElementById('bot-list');
-        list.innerHTML = '';
-        
-        // Global isim kontrolü için listeyi güncelle
-        registeredBotNamesGlobal = bots.map(b => b.name.toLowerCase());
+        try {
+            const data = await apiCall('/api/bots', { headers: { 'Authorization': 'Bearer ' + token } });
+            bots = Array.isArray(data) ? data : [];
+            const list = document.getElementById('bot-list');
+            list.innerHTML = '';
 
-        bots.forEach(b => {
-            const btn = document.createElement('button');
-            btn.className = 'btn';
-            btn.style.width = '100%';
-            btn.style.textAlign = 'left';
-            btn.innerText = `> ${b.name} [${b.online ? 'ONLINE' : 'OFFLINE'}]`;
-            btn.onclick = () => selectBot(b);
-            list.appendChild(btn);
-        });
+            bots.forEach(b => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'bot-entry';
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.style.width = '100%';
+                btn.style.textAlign = 'left';
+                btn.innerText = `> ${b.name} [${b.online ? 'ONLINE' : 'OFFLINE'}]`;
+                btn.onclick = () => selectBot(b);
+                wrapper.appendChild(btn);
+                list.appendChild(wrapper);
+            });
+        } catch (e) {
+            if (e.message.includes('401') || e.message.includes('403')) {
+                logout();
+            } else {
+                pushNotification("Hata", "Bot listesi yüklenemedi: " + e.message, "danger");
+            }
+        }
+    }
+
+    function logout() {
+        token = '';
+        localStorage.removeItem('goober_token');
+        localStorage.removeItem('goober_username');
+        location.reload();
     }
 
     async function createBot() {
         const name = prompt("Unique Bot İsmi (Tüm platformda benzersiz olmalıdır):");
         if (!name) return;
-
-        // PLATFORM GENELİ AYNI ADDA BOT OLUŞTURMA ENGELİ
-        if (registeredBotNamesGlobal.includes(name.toLowerCase())) {
-            alert(`HATA: '${name}' ismiyle bir bot zaten mevcut! Platform genelinde aynı isimde ikinci bir bot oluşturulamaz.`);
-            pushNotification("Kritik Hata", "Benzersiz isim kuralı ihlali: Bot oluşturulamadı.", "danger");
-            return;
-        }
-
         const username = prompt("Minecraft Kullanıcı Adı:");
-        const personality = prompt("Bot Kişiliği Belirleyin (Örn: Agresif, Koruyucu, Madenci, Troll, Alaycı):", "Madenci");
-        const apiKey = prompt("Groq API Key (İsteğe Bağlı):");
         if (!username) return;
+        const personality = prompt("Bot Kişiliği Belirleyin (Örn: Agresif, Koruyucu, Madenci, Troll, Alaycı):", "Madenci") || 'Standart';
+        const apiKey = prompt("Groq API Key (İsteğe Bağlı):") || '';
 
-        await fetch('/api/bots', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-            body: JSON.stringify({ name, username, apiKey, host: 'localhost', port: 25565, aiEnabled: true, personality })
-        });
-        
-        pushNotification("Sistem", `${name} adında [${personality}] kişilikli bot oluşturuldu.`, "success");
-        loadBots();
+        try {
+            await apiCall('/api/bots', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ name, username, apiKey, host: 'localhost', port: 25565, aiEnabled: true, personality })
+            });
+            pushNotification("Sistem", `${name} adında [${personality}] kişilikli bot oluşturuldu.`, "success");
+            loadBots();
+        } catch (e) {
+            pushNotification("Kritik Hata", e.message, "danger");
+            alert(e.message);
+        }
     }
 
     function selectBot(bot) {
@@ -285,114 +335,142 @@
         document.getElementById('bot-personality-badge').innerText = `KİŞİLİK: ${bot.personality || 'Standart'}`;
         document.getElementById('cfg-host').value = bot.host;
         document.getElementById('cfg-port').value = bot.port;
-        document.getElementById('cfg-apikey').value = bot.apiKey || '';
-        document.getElementById('ai-toggle').checked = bot.aiEnabled;
+        document.getElementById('cfg-apikey').value = '';
+        document.getElementById('cfg-apikey').placeholder = bot.apiKey ? 'Kayıtlı (değiştirmek için yaz)' : 'Groq API Key (gsk_...)';
+        document.getElementById('cfg-personality').value = bot.personality || '';
+        document.getElementById('ai-toggle').checked = !!bot.aiEnabled;
+        document.getElementById('autostart-toggle').checked = !!bot.autoStart;
         document.getElementById('chat-log').innerHTML = '';
+        document.getElementById('reconnect-tag').style.display = 'none';
 
         socket.emit('joinBotRoom', { botId: bot.id, token });
         pushNotification("Bağlantı", `${bot.name} kontrol paneline bağlanıldı.`, "success");
     }
 
     async function updateBotSettings() {
-        if (!selectedBot) return;
+        if (!selectedBot) return pushNotification("Uyarı", "Önce bir bot seçmelisiniz.", "danger");
         const host = document.getElementById('cfg-host').value;
         const port = document.getElementById('cfg-port').value;
         const apiKey = document.getElementById('cfg-apikey').value;
+        const personality = document.getElementById('cfg-personality').value;
         const aiEnabled = document.getElementById('ai-toggle').checked;
+        const autoStart = document.getElementById('autostart-toggle').checked;
 
-        await fetch(`/api/bots/${selectedBot.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-            body: JSON.stringify({ host, port, apiKey, aiEnabled })
-        });
-        alert("Bot konfigürasyonu güncellendi!");
-        loadBots();
+        try {
+            await apiCall(`/api/bots/${selectedBot.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify({ host, port, apiKey, aiEnabled, personality, autoStart })
+            });
+            pushNotification("Sistem", "Bot konfigürasyonu güncellendi.", "success");
+            loadBots();
+        } catch (e) {
+            pushNotification("Hata", "Ayarlar kaydedilemedi: " + e.message, "danger");
+        }
     }
 
-    function startBot() { if (selectedBot) socket.emit('startBot'); }
-    function stopBot() { if (selectedBot) socket.emit('stopBot'); }
+    function startBot() {
+        if (!selectedBot) return pushNotification("Uyarı", "Önce bir bot seçmelisiniz.", "danger");
+        socket.emit('startBot');
+    }
+    function stopBot() {
+        if (!selectedBot) return pushNotification("Uyarı", "Önce bir bot seçmelisiniz.", "danger");
+        socket.emit('stopBot');
+    }
 
     function sendAICommand() {
+        if (!selectedBot) return pushNotification("Uyarı", "Önce bir bot seçmelisiniz.", "danger");
         const input = document.getElementById('ai-command-input');
-        if (input.value) {
-            socket.emit('directAICommand', input.value);
-            pushNotification("Kortikal Emir", `AI Motoruna İletildi: "${input.value}"`, "success");
+        if (input.value.trim()) {
+            socket.emit('directAICommand', input.value.trim());
+            pushNotification("Kortikal Emir", `AI Motoruna İletildi: "${input.value.trim()}"`, "success");
             input.value = '';
         }
     }
 
-    // TELEMETRİ & YAPAY ZEKANIN YAPTIĞI HAREKETLERİN PANELE YANSIMASI
     socket.on('botTelemetry', data => {
-        document.getElementById('telemetry-data').innerHTML = 
+        document.getElementById('telemetry-data').innerHTML =
             `X: ${data.x} | Y: ${data.y} | Z: ${data.z}<br>Sağlık: ${data.health} ❤️ | Açlık: ${data.food} 🍖`;
         document.getElementById('bot-live-action').innerText = `YAW: ${data.yaw} | PITCH: ${data.pitch}`;
-        
-        // Yapay zeka tarafından yapılan anlık eylemlerin arayüze yansıması
-        if(data.currentAIAction) {
-            document.getElementById('ai-realtime-action').innerText = data.currentAIAction.toUpperCase();
-            if(data.aiActionLogged) {
-                pushNotification("AI Kararı", `${selectedBot.name} -> ${data.currentAIAction}`, "success");
-            }
+        if (data.currentAIAction) document.getElementById('ai-realtime-action').innerText = data.currentAIAction.toUpperCase();
+    });
+
+    socket.on('globalPanelsUpdate', list => {
+        const globalBox = document.getElementById('global-panels');
+        globalBox.innerHTML = '';
+        if (!list || list.length === 0) {
+            globalBox.innerHTML = '<div style="color:#475569; font-size:11px;">Şu an aktif başka panel yok.</div>';
+            return;
+        }
+        list.forEach(entry => {
+            if (selectedBot && entry.botId === selectedBot.id) return; // kendi botunu listeleme
+            const div = document.createElement('div');
+            div.className = 'global-item';
+            div.innerHTML = `<span>Operatör: ${escapeHtml(entry.operator)} (Bot: ${escapeHtml(entry.botName)})</span>`;
+            const requestBtn = document.createElement('button');
+            requestBtn.className = 'btn btn-sm';
+            requestBtn.innerText = 'Erişim İste';
+            requestBtn.onclick = () => requestAccess(entry.botId, entry.operator, entry.botName);
+            div.appendChild(requestBtn);
+            globalBox.appendChild(div);
+        });
+    });
+
+    function requestAccess(botId, operator, botName) {
+        pushNotification("Erişim Talebi", `${operator} kullanıcısının ${botName} paneline erişim isteği gönderildi. Yanıt bekleniyor...`, "");
+        socket.emit('requestPanelAccess', { targetBotId: botId });
+    }
+
+    socket.on('accessRequestResult', data => {
+        if (data.ok) {
+            pushNotification("Erişim Onaylandı", data.message, "success");
+        } else {
+            pushNotification("Erişim Reddedildi", data.message, "danger");
         }
     });
 
-    // DİĞER İNSANLARIN AKTİF PANELİNİ GÖREBİLME VE ERİŞİM İSTEĞİ ATMA
-    function loadGlobalPanels() {
-        // Backend'den gelen aktif global operatör panelleri listesi simülasyonu
-        const globalBox = document.getElementById('global-panels');
-        globalBox.innerHTML = `
-            <div class="global-item">
-                <span>Operatör: Matrix_Cyber (Bot: GooberX)</span>
-                <button class="btn btn-sm" onclick="requestAccess('Matrix_Cyber', 'GooberX')">Erişim İste</button>
-            </div>
-            <div class="global-item">
-                <span>Operatör: V_Cyberpunk (Bot: JohnnyBot)</span>
-                <button class="btn btn-sm" onclick="requestAccess('V_Cyberpunk', 'JohnnyBot')">Erişim İste</button>
-            </div>
-        `;
-    }
-
-    function requestAccess(operator, botName) {
-        pushNotification("Erişim Talebi", `${operator} kullanıcısının ${botName} paneline erişim isteği gönderildi. Yanıt bekleniyor...`, "");
-        socket.emit('requestPanelAccess', { targetOperator: operator, targetBot: botName });
-    }
-
-    // BİLDİRİMLER BÖLMESİ FONKSİYONU
-    function pushNotification(title, message, type) {
-        const log = document.getElementById('notification-log');
-        const time = new Date().toLocaleTimeString();
-        log.innerHTML += `
-            <div class="notification-item ${type}">
-                <strong>[${time}] ${title}:</strong> ${message}
-            </div>`;
-        log.scrollTop = log.scrollHeight;
-    }
-
     socket.on('incomingAccessRequest', data => {
-        pushNotification("GELEN TALEP", `${data.fromUser} sizin panelinize erişmek istiyor!`, "danger");
-        const accept = confirm(`${data.fromUser} sizin aktif bot panelinize erişim izni istiyor. Onaylıyor musunuz?`);
+        pushNotification("GELEN TALEP", `${escapeHtml(data.fromUser)} sizin panelinize erişmek istiyor!`, "danger");
+        const accept = confirm(`${data.fromUser} sizin "${data.botName}" panelinize erişim izni istiyor. Onaylıyor musunuz?`);
         socket.emit('responsePanelAccess', { requestId: data.requestId, approved: accept });
     });
 
+    function pushNotification(title, message, type) {
+        const log = document.getElementById('notification-log');
+        const time = new Date().toLocaleTimeString();
+        const div = document.createElement('div');
+        div.className = `notification-item ${type || ''}`;
+        div.innerHTML = `<strong>[${time}] ${escapeHtml(title)}:</strong> ${escapeHtml(message)}`;
+        log.appendChild(div);
+        log.scrollTop = log.scrollHeight;
+        while (log.children.length > 100) log.removeChild(log.firstChild);
+    }
+
     socket.on('status', data => {
-        document.getElementById('bot-status-badge').innerText = `Durum: ${data.state.toUpperCase()} - ${data.message || ''}`;
+        document.getElementById('bot-status-badge').innerText = `Durum: ${(data.state || '').toUpperCase()} - ${data.message || ''}`;
+        document.getElementById('reconnect-tag').style.display = data.state === 'reconnecting' ? 'block' : 'none';
+        if (data.state === 'online') loadBots();
+        if (data.state === 'offline' || data.state === 'error') loadBots();
     });
 
     socket.on('chat', data => {
         const log = document.getElementById('chat-log');
-        log.innerHTML += `<div class="chat-msg"><span>[${data.time}]</span> <b>${data.username}:</b> ${data.message}</div>`;
+        const div = document.createElement('div');
+        div.className = 'chat-msg';
+        div.innerHTML = `<span>[${data.time}]</span> <b>${escapeHtml(data.username)}:</b> ${escapeHtml(data.message)}`;
+        log.appendChild(div);
         log.scrollTop = log.scrollHeight;
+        while (log.children.length > 200) log.removeChild(log.firstChild);
     });
 
     socket.on('playerList', players => {
         const list = document.getElementById('player-list');
         list.innerHTML = '';
-        players.forEach(p => {
-            list.innerHTML += `
-                <div class="player-item">
-                    <img src="https://crafatar.com/avatars/${p.username}?overlay=true" />
-                    <span>${p.username}</span>
-                </div>`;
+        (players || []).forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'player-item';
+            div.innerHTML = `<img src="https://crafatar.com/avatars/${encodeURIComponent(p.username)}?overlay=true" onerror="this.style.display='none'" /><span>${escapeHtml(p.username)}</span>`;
+            list.appendChild(div);
         });
     });
 
@@ -401,24 +479,29 @@
         hotbar.innerHTML = '';
         for (let i = 0; i < 9; i++) {
             const item = items[i];
-            hotbar.innerHTML += `
-                <div class="slot ${i===0?'active':''}" onclick="socket.emit('selectSlot', ${i})">
-                    ${item ? item.name.substring(0, 4) : ''}
-                    ${item ? `<span class="count">${item.count}</span>` : ''}
-                </div>`;
+            const div = document.createElement('div');
+            div.className = `slot ${i === 0 ? 'active' : ''}`;
+            div.onclick = () => socket.emit('selectSlot', i);
+            div.innerHTML = item ? `${escapeHtml(item.name.substring(0, 4))}<span class="count">${item.count}</span>` : '';
+            hotbar.appendChild(div);
         }
     });
 
     function sendChat() {
         const input = document.getElementById('chat-input');
-        if (input.value) {
-            socket.emit('sendChat', input.value);
+        if (input.value.trim()) {
+            socket.emit('sendChat', input.value.trim());
             input.value = '';
         }
     }
 
-    function setMove(control, state) { socket.emit('controlState', { control, state }); }
-    function triggerAction(type) { socket.emit('action', { type }); }
+    function setMove(control, state) { if (selectedBot) socket.emit('controlState', { control, state }); }
+    function triggerAction(type) { if (selectedBot) socket.emit('action', { type }); }
+
+    function escapeHtml(str) {
+        if (str === undefined || str === null) return '';
+        return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
 </script>
 </body>
 </html>
