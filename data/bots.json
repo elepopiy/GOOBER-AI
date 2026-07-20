@@ -1,0 +1,16 @@
+[
+  {
+    "id": "bot_1784562255384",
+    "ownerId": "usr_1784562216982",
+    "name": "GOOBER_ZEKA",
+    "host": "localhost",
+    "port": 25565,
+    "authType": "offline",
+    "username": "GOOBER_ZEKA",
+    "autoPassword": "Glory3467",
+    "autoEat": true,
+    "autoAuth": true,
+    "apiKey": "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",
+    "aiEnabled": true
+  }
+]
