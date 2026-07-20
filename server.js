@@ -52,13 +52,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const activeBots = new Map();
 
-// --- ZARARLI MOB LİSTESİ ---
 const HOSTILE_MOBS = [
     'zombie', 'skeleton', 'creeper', 'spider', 'enderman', 'witch', 
     'slime', 'drowned', 'husk', 'stray', 'phantom', 'cave_spider', 'blaze', 'ghast'
 ];
 
-// --- 50 BLOK TEHDİT TARAMASI VE SALDIRI SİSTEMİ ---
 function checkAndAttackHostileMobs(instanceData) {
     const { bot } = instanceData;
     if (!bot || !bot.entity || bot.pvp.target) return;
@@ -76,79 +74,85 @@ function checkAndAttackHostileMobs(instanceData) {
     }
 }
 
-// --- MINECRAFT BİTİRME (SPEEDRUN) ZİNCİRİ ---
+// --- CREATİVE MOD YAPILAŞMA (BUILD) MOTORU ---
+async function buildStructure(instanceData, blockNameStr) {
+    const { bot } = instanceData;
+    if (!bot || !bot.entity) return;
+
+    // Hedeflenen bloğu oyun veritabanında bul (varsayılan: oak_planks)
+    const mcData = require('minecraft-data')(bot.version);
+    const Item = require('prismarine-item')(bot.version);
+    
+    // AI genelde Türkçe veya genel İngilizce çeviri gönderebilir, eşleştirme yapıyoruz
+    let searchName = blockNameStr.toLowerCase().replace(' ', '_');
+    let blockType = mcData.itemsByName[searchName] || 
+                    mcData.itemsByName[`${searchName}_planks`] || 
+                    mcData.itemsByName[`${searchName}_block`] || 
+                    mcData.itemsByName['oak_planks'];
+
+    bot.chat(`Creative moda geçiyorum ve envanterime ${blockType.name} alıyorum...`);
+    
+    // Creative moda geçişi garantiye al
+    bot.chat('/gamemode creative');
+    await bot.waitForTicks(20); // Sunucunun oyun modunu güncellemesi için bekle
+
+    try {
+        // Envanterin 36. slotuna (Hotbar'ın ilk sekmesi) 64 adet istenen bloğu yerleştir (CREATIVE HACK)
+        await bot.creative.setInventorySlot(36, new Item(blockType.id, 64));
+        await bot.equip(blockType.id, 'hand');
+        bot.chat(`🧱 ${blockType.name} elime alındı. Önüme inşa etmeye başlıyorum!`);
+
+        // Basit yapı yerleştirme örneği: Botun baktığı yönün hemen önüne ve altına blok koyar
+        const referencePosition = bot.entity.position.offset(1, -1, 0);
+        const referenceBlock = bot.blockAt(referencePosition);
+        
+        if (referenceBlock && referenceBlock.name !== 'air') {
+            const vec = require('vec3');
+            await bot.placeBlock(referenceBlock, new vec(0, 1, 0));
+            bot.chat("✅ Temel atıldı! Yapı prototipi başarılı.");
+        } else {
+            bot.chat("Önümde blok koyabileceğim sağlam bir zemin yok, havada yapamam!");
+        }
+    } catch (err) {
+        console.error("Build Error:", err.message);
+        bot.chat("Eşyayı alırken veya koyarken bir sorun yaşadım. OP yetkim var mı?");
+    }
+}
+
 async function runBeatGameLoop(instanceData) {
     const { bot } = instanceData;
     if (!instanceData.speedrunActive || !bot || !bot.entity) return;
-
-    const mcData = require('minecraft-data')(bot.version);
-    const defaultMovements = new Movements(bot, mcData);
-    bot.pathfinder.setMovements(defaultMovements);
 
     const items = bot.inventory.items();
     const count = (name) => items.filter(i => i.name.includes(name)).reduce((a, b) => a + b.count, 0);
 
     const wood = count('log');
     const cobble = count('cobblestone');
-    const iron = count('iron_ingot') + count('raw_iron');
-    const diamond = count('diamond');
-    const blazeRod = count('blaze_rod');
-    const enderPearl = count('ender_pearl');
-
-    // ADIM 1: Odun Kırma ve Ağaç Keşfi
+    
     if (wood < 12 && cobble < 10) {
         const logBlock = bot.findBlock({ matching: b => b.name.includes('log'), maxDistance: 64 });
         
         if (logBlock) {
-            bot.chat(`🌲 Ağaç tespit edildi (${logBlock.position.x}, ${logBlock.position.y}, ${logBlock.position.z}). Odun kesmeye gidiyorum...`);
+            bot.chat(`🌲 Ağaç tespit edildi. Odun kesmeye gidiyorum...`);
             bot.collectBlock.collect(logBlock, (err) => {
-                if (!err) setTimeout(() => runBeatGameLoop(instanceData), 800);
-                else setTimeout(() => runBeatGameLoop(instanceData), 2000);
+                // Hata durumunda takılı kalmamak için hedefi temizle ve biraz bekle
+                if (!err) {
+                    setTimeout(() => runBeatGameLoop(instanceData), 800);
+                } else {
+                    bot.chat("Bu ağaca ulaşamadım, başka arayacağım.");
+                    setTimeout(() => runBeatGameLoop(instanceData), 3000);
+                }
             });
         } else {
-            bot.chat("🔍 Yakında ağaç bulunamadı. Ağaç aramak için etrafı dolaşıyorum...");
             const randomX = bot.entity.position.x + (Math.random() - 0.5) * 50;
             const randomZ = bot.entity.position.z + (Math.random() - 0.5) * 50;
-            
             bot.pathfinder.setGoal(new goals.GoalXZ(randomX, randomZ));
             setTimeout(() => runBeatGameLoop(instanceData), 7000);
         }
         return;
     }
-
-    // ADIM 2: Taş ve Demir Çağı
-    if (cobble < 20 || iron < 10) {
-        bot.chat("🎯 [GÖREV 2/5] Taş ve Demir çağına geçiliyor. Madenler kazılıyor...");
-        const ore = bot.findBlock({ matching: b => b.name.includes('iron_ore') || b.name === 'stone', maxDistance: 24 });
-        if (ore) {
-            bot.collectBlock.collect(ore, () => setTimeout(() => runBeatGameLoop(instanceData), 1000));
-        } else {
-            const rx = bot.entity.position.x + (Math.random() - 0.5) * 30;
-            const rz = bot.entity.position.z + (Math.random() - 0.5) * 30;
-            bot.pathfinder.setGoal(new goals.GoalXZ(rx, rz));
-            setTimeout(() => runBeatGameLoop(instanceData), 5000);
-        }
-        return;
-    }
-
-    // ADIM 3: Elmas Ekipmanı
-    if (diamond < 3) {
-        bot.chat("🎯 [GÖREV 3/5] Elmas aranıyor...");
-        const diaBlock = bot.findBlock({ matching: b => b.name.includes('diamond_ore'), maxDistance: 32 });
-        if (diaBlock) {
-            bot.collectBlock.collect(diaBlock, () => setTimeout(() => runBeatGameLoop(instanceData), 1000));
-        }
-        return;
-    }
-
-    // ADIM 4: Nether & Kaynak Toplama
-    if (blazeRod < 7 || enderPearl < 12) {
-        bot.chat("🎯 [GÖREV 4/5] Nether Portalına geçiş ve Ender Pearl / Blaze Rod avı...");
-        return;
-    }
-
-    // ADIM 5: Stronghold & Ender Dragon
-    bot.chat("🎯 [GÖREV 5/5] Stronghold aranıyor! Ender Dragon savaşına hazırlanılıyor...");
+    
+    bot.chat("Maden aşamasına geçiliyor...");
 }
 
 // --- GROQ AI MESAJ İŞLEME VE PROMPT YÖNETİMİ ---
@@ -162,28 +166,20 @@ async function processAIMessage(instanceData, username, message) {
     }
 
     const systemPrompt = `
-Sen Minecraft'ta oyuncuyla birlikte oyunu bitirmeye (Speedrun yapmaya) odaklanmış otonom bir AI botsun. İsmin: ${config.username}.
+Sen Minecraft'ta dünyanın en gelişmiş, otonom AI botusun. İsmin: ${config.username}.
 Seninle konuşan oyuncu: ${username}.
 
 TALİMATLAR:
-- Oyuncu sana "oyunu bitir", "ağaç kes", "speedrun yap", "dragonu kes", "maden kaz", "odun topla" gibi bir talimat verirse EYLEM OLARAK KESİNLİKLE "beat_game" DÖNDÜR.
-- "beat_game" eylemi tetiklendiğinde sen otomatik olarak sırasıyla:
-  1. En yakın ağacı arayıp odun toplayacaksın (bulamazsan gezip arayacaksın).
-  2. Taş ve demir çağına geçip maden kazacaksın.
-  3. Nether ve Ender Dragon hazırlığı yapacaksın.
+- "oyunu bitir", "speedrun yap", "odun topla" gibi bir talimat gelirse EYLEM OLARAK "beat_game" DÖNDÜR.
+- Oyuncu "yaratıcı moda geç", "creative ol", "gm 1 yap" derse EYLEM OLARAK "gamemode_creative" DÖNDÜR.
+- Oyuncu senden "yapı yap", "ev yap", "elmas bloktan kule yap", "tahtadan bir şey yap" gibi inşaat talimatları verirse EYLEM OLARAK "build_structure" DÖNDÜR ve json içindeki "blok_turu" alanına istediği materyali İngilizce ID olarak yaz (örn: diamond_block, oak_planks, stone).
 
 ÇIKTI FORMATI KESİNLİKLE SADECE GEÇERLİ BİR JSON OBJESİ OLMALIDIR:
 {
-  "cevap": "Oyuncuya vereceğin Türkçe yanıt",
-  "eylem": "[beat_game, stop, follow, attack_mob, jump, none]"
+  "cevap": "Oyuncuya vereceğin Türkçe yanıt (roleplay yapabilirsin)",
+  "eylem": "beat_game | stop | follow | attack_mob | gamemode_creative | build_structure | none",
+  "blok_turu": "eğer eylem build_structure ise buraya ingilizce blok adı yazılır, yoksa boş bırakılır"
 }
-
-Eylemler:
-- "beat_game": Oyunu bitirme, ağaç kesme, maden ve otonom zinciri başlatma.
-- "stop": Durma/iptal.
-- "follow": Oyuncuyu takip etme.
-- "attack_mob": Saldırı.
-- "none": Sohbet.
 `;
 
     try {
@@ -214,14 +210,18 @@ Eylemler:
                 bot.chat("🚀 Görev alındı! Oyunu bitirmek için ilk olarak odun aramaya başladım.");
                 runBeatGameLoop(instanceData);
                 break;
-
+            case 'gamemode_creative':
+                bot.chat("/gamemode creative");
+                break;
+            case 'build_structure':
+                const blockReq = aiResponse.blok_turu || 'oak_planks';
+                buildStructure(instanceData, blockReq);
+                break;
             case 'stop':
                 instanceData.speedrunActive = false;
                 bot.pathfinder.setGoal(null);
                 bot.pvp.stop();
-                bot.chat("Tüm otonom eylemler durduruldu.");
                 break;
-
             case 'follow':
                 instanceData.speedrunActive = false;
                 const targetPlayer = bot.players[username]?.entity;
@@ -229,7 +229,6 @@ Eylemler:
                     bot.pathfinder.setGoal(new goals.GoalFollow(targetPlayer, 2), true);
                 }
                 break;
-
             case 'attack_mob':
                 checkAndAttackHostileMobs(instanceData);
                 break;
@@ -241,6 +240,7 @@ Eylemler:
 }
 
 // --- AUTH API ---
+// [Değişiklik yok, önceki kod ile aynı]
 app.post('/api/register', async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ error: 'Eksik bilgi.' });
@@ -348,7 +348,17 @@ function startBotInstance(botConfig) {
     activeBots.set(botConfig.id, instanceData);
 
     bot.on('spawn', () => {
-        io.to(botConfig.id).emit('status', { state: 'online', message: 'Bot aktif! 50m koruma sistemi devrede.' });
+        io.to(botConfig.id).emit('status', { state: 'online', message: 'Bot aktif! Sistemler devrede.' });
+
+        // --- PATHFINDER VE HAREKET AYARLARI (DÜZELTİLDİ) ---
+        const mcData = require('minecraft-data')(bot.version);
+        const defaultMovements = new Movements(bot, mcData);
+        defaultMovements.canDig = true; // Engelleri kırmasına izin ver
+        defaultMovements.scafoldingBlocks = ['dirt', 'cobblestone', 'netherrack']; // Blok koyarak tırmanabilir
+        bot.pathfinder.setMovements(defaultMovements);
+        
+        // collectBlock için hareketi eşitle (Ağaç kırmada takılmaması için)
+        bot.collectBlock.movements = defaultMovements;
 
         if (botConfig.authType === 'offline' && botConfig.autoAuth && botConfig.autoPassword) {
             setTimeout(() => bot.chat(`/login ${botConfig.autoPassword}`), 2000);
@@ -359,7 +369,6 @@ function startBotInstance(botConfig) {
             else if (typeof bot.autoEat.enable === 'function') bot.autoEat.enable();
         }
 
-        // 2 SANİYEDE BİR TEHDİT TARAMASI
         setInterval(() => {
             checkAndAttackHostileMobs(instanceData);
         }, 2000);
@@ -398,7 +407,7 @@ function startBotInstance(botConfig) {
 
 function stopBotInstance(botId) {
     if (activeBots.has(botId)) {
-        activeBots.get(botId).bot.end(); // quit() yerine end() eklendi
+        activeBots.get(botId).bot.end(); // TypeError çökmesi çözüldü (quit yerine end)
         activeBots.delete(botId);
     }
 }
@@ -445,6 +454,6 @@ io.on('connection', (socket) => {
 const PORT = 3000;
 server.listen(PORT, () => {
     console.log(`==================================================`);
-    console.log(` 🚀 ADVANCED SPEEDRUN BOT PANEL: http://localhost:${PORT}`);
+    console.log(` 🚀 ADVANCED OMNIPOTENT BOT PANEL: http://localhost:${PORT}`);
     console.log(`==================================================`);
 });
