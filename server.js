@@ -989,33 +989,48 @@ function startBotInstance(botConfig) {
         try {
             instanceData.reconnectAttempts = 0;
             io.to(botConfig.id).emit('status', { state: 'online', message: 'Bot aktif! GOOBER PRO V7.1 Engine yüklendi.' });
-
+    
+            // 1. Fizikleri zorla aç ve anti-cheat ayarlarını yap
+            bot.physicsEnabled = true;
+    
             if (pathfinder && Movements) {
                 const mcData = require('minecraft-data')(bot.version);
                 const defaultMovements = new Movements(bot, mcData);
                 defaultMovements.canDig = true;
+                defaultMovements.allow1by1tunnels = false; // Anti-cheat takılmaması için
                 defaultMovements.scaffoldingBlocks = ['dirt', 'cobblestone', 'netherrack'];
                 bot.pathfinder.setMovements(defaultMovements);
                 if (bot.collectBlock) bot.collectBlock.movements = defaultMovements;
             }
-
+    
+            // 2. Eğer boyuttan geçilirse eski intervalleri temizle (Memory leak & Paket çakışması önleme)
+            if (instanceData.intervals && instanceData.intervals.length > 0) {
+                instanceData.intervals.forEach(clearInterval);
+                instanceData.intervals = [];
+            }
+    
             if (botConfig.authType === 'offline' && botConfig.autoAuth && botConfig.autoPassword) {
                 setTimeout(() => safeChat(bot, `/login ${botConfig.autoPassword}`), 2000);
             }
-
+    
             if (botConfig.autoEat && bot.autoEat) {
                 try {
                     if (typeof bot.autoEat.enableAuto === 'function') bot.autoEat.enableAuto();
                     else if (typeof bot.autoEat.enable === 'function') bot.autoEat.enable();
                 } catch (e) {}
             }
-
+    
+            // 3. Varsayılan olarak otonom mantığı aktif et (İstemiyorsan false bırakabilirsin)
+            instanceData.speedrunActive = true;
+    
             const scanInterval = setInterval(() => checkAndAttackHostileMobs(instanceData), 2000);
+            
+            // 4. Süre 500ms'ye çekildi (Anti-cheat dostu)
             const treeInterval = setInterval(() => {
                 if (instanceData.speedrunActive) {
                     executeBehaviorTree(instanceData).catch(err => console.error("Behavior Tree Hatası:", err.message));
                 }
-            }, 200);
+            }, 500);
 
             instanceData.intervals.push(scanInterval, treeInterval);
 
@@ -1050,14 +1065,40 @@ function startBotInstance(botConfig) {
         io.to(botConfig.id).emit('status', { state: 'offline', message: 'Sunucudan atıldı: ' + String(reason).slice(0, 150) });
     });
 
-    bot.on('chat', (username, message) => {
+    bot.on('messagestr', (message, messagePosition, jsonMsg) => {
         try {
-            io.to(botConfig.id).emit('chat', { username, message, time: new Date().toLocaleTimeString() });
-            if (username === bot.username) return;
-            if (instanceData.config.aiEnabled) {
-                processAIMessage(instanceData, username, message).catch(err => console.error('processAIMessage hatası:', err.message));
+            if (!message || !message.trim()) return;
+
+            // Panele ham chat akışını gönder
+            io.to(botConfig.id).emit('chat', { 
+                username: 'Chat', 
+                message: message, 
+                time: new Date().toLocaleTimeString() 
+            });
+
+            if (!instanceData.config.aiEnabled) return;
+
+            // Kendi attığı mesajları veya sistem mesajlarını geç
+            if (message.includes(bot.username)) return; 
+
+            // Gerçek sunuculardaki renkli/unvanlı chatlerden isim ve mesajı ayıkla
+            // Örn: "[Üye] Görkem » selam" veya "Görkem: selam"
+            const chatMatch = message.match(/(?:\[.*?\]\s*)*([a-zA-Z0-9_]{3,16})[\s>»:]+(.+)/);
+
+            if (chatMatch) {
+                const sender = chatMatch[1].trim();
+                const text = chatMatch[2].trim();
+    
+                if (sender !== bot.username) {
+                    processAIMessage(instanceData, sender, text).catch(err => console.error('AI Hatası:', err.message));
+                }
+            } else {
+                // Eğer özel format yoksa direkt ham mesajı AI'ya yönlendir
+                processAIMessage(instanceData, "Oyuncu", message).catch(err => console.error('AI Hatası:', err.message));
             }
-        } catch (e) {}
+        } catch (e) {
+            console.error('messagestr hatası:', e.message);
+        }
     });
 
     bot.on('end', () => {
